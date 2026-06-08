@@ -1,6 +1,6 @@
 [project]
 name = "wisprflow-sdk"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unofficial Python SDK for Wispr Flow — transcription and command APIs"
 readme = "README.md"
 requires-python = ">=3.9"
