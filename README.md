@@ -5,6 +5,38 @@ Unofficial Python SDK for Wispr Flow.
 Reverse-engineers the Wispr Flow desktop client and exposes its transcription and command APIs through a clean Python interface. Send audio files directly from Python, stream live audio, customize transcription behavior, and receive structured results — no UI interaction required.
 
 [![PyPI version](https://badge.fury.io/py/wisprflow-sdk.svg)](https://pypi.org/project/wisprflow-sdk/)
+
+## Table of Contents
+
+- [Features](#features)
+- [Design Goals](#design-goals)
+- [Installation](#installation)
+- [Setup](#setup)
+  - [1. Install Wispr Flow](#1-install-wispr-flow)
+  - [2. Run the patch](#2-run-the-patch)
+  - [3. Populate the runtime config](#3-populate-the-runtime-config)
+  - [4. Verify](#4-verify)
+- [Quick Start](#quick-start)
+- [Transcription](#transcription)
+  - [Languages](#languages)
+  - [Context Injection](#context-injection)
+- [Command Mode](#command-mode)
+- [Live Streaming](#live-streaming)
+- [CLI](#cli)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Demo File](#demo-file)
+- [Security](#security)
+- [Limitations](#limitations)
+- [Technical Documentation](#technical-documentation)
+- [Disclaimer](#disclaimer)
+- [License](#license)
+
+
+For SDK usage, examples, configuration, and API reference, see `DOCS.md`.
+
+For reverse-engineering details, protocol analysis, authentication internals, runtime discovery, and implementation notes, see `TECHNICAL_DETAILS.md`.
+
 ## Features
 
 * One-shot audio transcription

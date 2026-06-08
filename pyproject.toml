@@ -1,6 +1,6 @@
 [project]
 name = "wisprflow-sdk"
-version = "0.1.1"
+version = "0.1.2"
 description = "Unofficial Python SDK for Wispr Flow — transcription and command APIs"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -22,9 +22,9 @@ wisprflow = "wisprflow_sdk._core:main"
 wisprflow-patch = "wisprflow_sdk._installer:run_patch"
 
 [project.urls]
-Homepage = "https://github.com/ThisisShashwat/wisprflow-sdk"
 Repository = "https://github.com/ThisisShashwat/wisprflow-sdk"
 PyPI = "https://pypi.org/project/wisprflow-sdk/"
+Documentation = "https://github.com/ThisisShashwat/wisprflow-sdk/blob/main/DOCS.md"
 Issues = "https://github.com/ThisisShashwat/wisprflow-sdk/issues"
 
 [build-system]
