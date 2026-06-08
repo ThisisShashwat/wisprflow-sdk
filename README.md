@@ -98,7 +98,11 @@ All requests are performed using your own authenticated Wispr Flow account, subj
 ```bash
 pip install wisprflow-sdk
 ```
+or
 
+```bash
+uv add wisprflow-sdk
+```
 ---
 
 ## Setup
