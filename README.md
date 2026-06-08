@@ -2,22 +2,112 @@
 
 Unofficial Python SDK for Wispr Flow.
 
-This project reverse-engineers the Wispr Flow desktop client and exposes its transcription and command APIs through a clean Python interface. Send audio files directly from Python, stream live audio, customize transcription behavior, and receive structured results without interacting with the desktop application's UI.
+Reverse-engineers the Wispr Flow desktop client and exposes its transcription and command APIs through a clean Python interface. Send audio files directly from Python, stream live audio, customize transcription behavior, and receive structured results — no UI interaction required.
 
 ## Features
 
 * One-shot audio transcription
 * Real-time streaming transcription
 * Command mode
-* Context-aware transcription
-* Custom dictionaries and replacements
+* Context-aware transcription (cursor position, screen content, app info)
+* Custom dictionaries, replacements, and snippets
 * Automatic audio conversion via FFmpeg
 * Live partial result callbacks
-* No browser automation
-* No Flask server required
-* Pure Python interface
-* Single-file implementation
-* No generated protobuf classes required
+* CLI included
+* No browser automation, no Flask server, no generated protobuf classes
+
+---
+
+## Design Goals
+
+Provide programmatic access to Wispr Flow while preserving the behavior of the official client.
+
+The SDK does **not**:
+
+* Bypass subscriptions, usage limits, quotas, or authentication
+* Unlock premium features
+
+All requests are performed using your own authenticated Wispr Flow account, subject to the same limits enforced by Wispr. If your account can't do something in the official client, this SDK can't either.
+
+---
+
+> [!WARNING]
+> This project is provided **as-is** with no warranties or guarantees.
+>
+> This SDK interacts with Wispr Flow using reverse-engineered client behavior and implementation details that may change at any time.
+>
+> By using this project, you accept full responsibility for any consequences, including service interruptions, account restrictions, account suspension, or account termination.
+>
+> Use at your own risk.
+
+---
+
+> [!IMPORTANT]
+> This SDK is **not a replacement for the Wispr Flow desktop application**. It does not capture microphone audio, inject text into applications, or simulate keyboard input.
+>
+> Typical use cases: transcribing audio files from Python, streaming audio from a custom source, building automation workflows, processing recordings in scripts.
+>
+> Continue using the official desktop app for day-to-day dictation.
+
+---
+
+> [!NOTE]
+> The SDK does not implement its own authentication. It reuses the session created by the official Wispr Flow desktop application.
+>
+> Open and use the desktop app occasionally (once every week or two) to keep authentication tokens fresh. If tokens expire, the SDK will stop working until Wispr Flow is launched again.
+
+---
+
+## Installation
+
+**Requirements:** Python 3.9+, FFmpeg on PATH, Wispr Flow desktop app installed and logged in.
+
+```bash
+pip install wisprflow-sdk
+```
+
+---
+
+## Setup
+
+### 1. Install Wispr Flow
+
+Install and log into the official Wispr Flow desktop application.
+
+### 2. Run the patch
+
+```bash
+wisprflow-patch
+```
+
+Wispr Flow stores runtime connection info internally and doesn't expose it publicly. The patch modifies your local install to export it to `%LOCALAPPDATA%\WisprFlow\wispr_runtime.json` on the next dictation.
+
+The command explains what it will do and asks for confirmation before touching anything. It creates a backup automatically.
+
+**Re-run after every Wispr Flow update.**
+
+> The patch does not create login sessions, generate tokens, or bypass authentication. It only exposes config that's already inside the app.
+
+### 3. Populate the runtime config
+
+Open Wispr Flow and do one dictation. This generates `wispr_runtime.json`.
+
+### 4. Verify
+
+```python
+from wisprflow_sdk import WisprClient
+
+client = WisprClient()
+print(client.auth_status())
+# {"ok": True, "status": "valid", "expires_utc": "...", "seconds_remaining": 3600}
+```
+
+The SDK expects these two files to exist:
+
+```
+%APPDATA%\Wispr Flow\session.json       ← created by Wispr login
+%LOCALAPPDATA%\WisprFlow\wispr_runtime.json  ← created by the patch
+```
 
 ---
 
@@ -29,359 +119,200 @@ from wisprflow_sdk import WisprClient
 client = WisprClient()
 
 result = client.transcribe("audio.wav")
-
 print(result.final)
 ```
 
 ---
 
-## Design Goals
-
-The goal of this project is to provide programmatic access to Wispr Flow while preserving the behavior of the official client.
-
-The SDK does **not**:
-
-* Bypass subscriptions
-* Bypass usage limits
-* Bypass quotas
-* Bypass account restrictions
-* Bypass authentication
-* Unlock premium features
-
-All requests are performed using your own authenticated Wispr Flow account and remain subject to the same limits and policies enforced by Wispr.
-
-If your account cannot perform an action through the official client, this SDK cannot perform it either.
-
----
-
-> [!WARNING]
-> This project is provided **as-is** with no warranties or guarantees.
->
-> This SDK interacts with Wispr Flow using reverse-engineered client behavior and implementation details that may change at any time.
->
-> By using this project, you accept full responsibility for any consequences, including service interruptions, account restrictions, account suspension, or account termination.
->
-> The authors of this project are not responsible for any loss of access, data, service availability, or account status resulting from the use of this software.
->
-> Use at your own risk.
-
----
-
-> [!IMPORTANT]
-> This SDK is **not a replacement for the Wispr Flow desktop application**.
->
-> It does not:
->
-> * Capture microphone audio automatically
-> * Inject text into applications
-> * Simulate keyboard input
-> * Replace the Wispr desktop experience
-> * Provide background dictation
->
-> The goal of this project is to provide a programmatic Python interface to Wispr Flow's backend services.
->
-> Typical use cases include:
->
-> * Transcribing audio files from Python
-> * Streaming audio from a custom microphone source
-> * Building automation workflows
-> * Processing recordings in scripts and applications
-> * Accessing Wispr transcription functionality from code
->
-> You should continue using the official Wispr Flow desktop application for normal day-to-day dictation and text insertion workflows.
-
----
-
-> [!NOTE]
-> The SDK intentionally does not implement its own authentication flow.
->
-> Instead, it reuses the authentication session created by the official Wispr Flow desktop application.
->
-> To keep the project simple and avoid maintaining a separate login implementation, users should periodically open and use the official Wispr Flow desktop application so it can refresh its own authentication tokens (and run a dictation).
->
-> If authentication tokens expire, the SDK may stop working until Wispr Flow is launched again and refreshes the session.
->
-> As a general recommendation, open and use the desktop application occasionally (for example, once every week or two) to ensure authentication remains current.
-
----
-
-## Project Structure
-
-The core SDK is intentionally self-contained.
-
-```text
-wisprflow_sdk.py
-```
-
-The entire implementation lives in a single Python file.
-
-This makes it easy to:
-
-* Audit
-* Learn from
-* Modify
-* Embed into existing projects
-* Debug protocol changes
-
-No local servers, browser automation, Electron integration, or multi-module dependency chains are required.
-
----
-
-## Installation
-
-### Requirements
-
-* Python 3.9+
-* FFmpeg available on PATH
-* Installed and logged-in Wispr Flow desktop application
-
-Install dependencies:
-
-```bash
-pip install grpcio requests
-```
-
----
-
-## Setup
-
-### 1. Install Wispr Flow
-
-Install and log into the official Wispr Flow desktop application.
-
-The SDK reuses your existing Wispr session and does not implement its own authentication flow.
-
-### 2. Extract Runtime Configuration
-
-Run:
-
-```powershell
-patch_wispr.ps1
-```
-
-Wispr Flow stores some runtime connection information internally and does not expose it through a public API.
-
-The patch modifies the locally installed Wispr Flow application so that the runtime configuration used by the client is exported to:
-
-```text
-%LOCALAPPDATA%\WisprFlow\wispr_runtime.json
-```
-
-The patch:
-
-1. Creates a backup of the original application.
-2. Extracts the Electron application bundle.
-3. Injects a small runtime hook.
-4. Repackages the application.
-
-After running the patch, perform a transcription in Wispr Flow once to generate the file.
-
-The patch **does not**:
-
-* Create login sessions
-* Generate authentication tokens
-* Create accounts
-* Bypass authentication
-
-Authentication continues to be handled entirely by the official Wispr Flow desktop application.
-
-**You will have to rerun the powershell script everytime the Wispr Flow app updates.**
-
-### 3. Verify Required Files
-
-The SDK expects the following files to exist:
-
-```text
-%APPDATA%\Wispr Flow\session.json
-%LOCALAPPDATA%\WisprFlow\wispr_runtime.json
-```
-
-`session.json` is automatically created by Wispr Flow after login.
-
-`wispr_runtime.json` is generated by the patch.
-
----
-
-
-## Basic Transcription
+## Transcription
 
 ```python
-from wisprflow_sdk import WisprClient
-
-client = WisprClient()
-
 result = client.transcribe(
     "meeting.m4a",
-    languages=["en"],
-    style="FORMAL",
-    cleanup="MEDIUM"
+    languages=["en"],        # see Languages below
+    style="FORMAL",          # FORMAL | CASUAL | VERY_CASUAL | EXCITED
+    app_type="email",        # personal | work | email | other
+    cleanup="MEDIUM",        # NONE | LIGHT | MEDIUM | HIGH
 )
 
-print(result.final)
+print(result.final)          # use this 99% of the time
+print(result.raw)            # raw ASR before any formatting
+print(result.formatted)      # after Wispr's server-side formatting
+print(result.post_processing)# replacements/snippets that fired
+```
+
+
+### Languages
+
+Pass any language code Wispr Flow supports.
+
+```python
+# Hindi-English code-switching
+result = client.transcribe(AUDIO, languages=["en", "hien"])
+
+# Hindi only
+result = client.transcribe(AUDIO, languages=["hi"])
+
+# Japanese only
+result = client.transcribe(AUDIO, languages=["jp"])
+
+# British English
+result = client.transcribe(AUDIO, languages=["engb"])
+```
+
+`hien` always auto-adds `en` alongside it. `None` falls back to `wispr_config.json`.
+
+### Context injection
+
+Pass cursor position and screen context to improve accuracy:
+
+```python
+result = client.transcribe(
+    "audio.wav",
+    before_text="Dear John,",
+    after_text="Regards",
+    selected_text="old text",
+    content_text="visible screen text",
+    app_name="Chrome",
+    url="https://mail.google.com",
+)
 ```
 
 ---
 
 ## Command Mode
 
+Transcribes a spoken command and applies it to `selected_text` via Wispr's command routing API.
+
 ```python
 cmd = client.command(
-    "command.wav",
+    "command.wav", # verbal instructions what to do with the text, e.g: make it formal
     selected_text="i am going to work tomorrow"
 )
 
-print(cmd.action)
-print(cmd.result)
+print(cmd.action)   # e.g. "rewrite"
+print(cmd.result)   # the transformed text — use this
 ```
 
 ---
 
 ## Live Streaming
 
+Feed raw 16kHz mono PCM16 bytes in real time.
+
 ```python
 with client.live_session(languages=["en"]) as sess:
     for chunk in pcm_audio_source():
-        sess.send(chunk)
+        sess.send(chunk)  # raw PCM16 bytes at 16kHz
 
 print(sess.result.final)
 ```
 
+Limits: 300 seconds, 25 MB per session.
+
 ---
 
-## Example File
+## CLI
 
-The repository includes:
+```bash
+# Basic transcription
+wisprflow audio.wav
 
-```text
-wisprflow_example.py
+# With options
+wisprflow audio.wav --style FORMAL --cleanup MEDIUM --languages en hien
+
+# With context
+wisprflow audio.wav --before "Dear John," --after "Regards"
+
+# Test matrices
+wisprflow audio.wav --matrix-cleanup # detailed explaination in the example file
+wisprflow audio.wav --matrix-language
+
+# Debug output
+wisprflow audio.wav --verbose
 ```
-
-which demonstrates virtually every public feature of the SDK.
-
-Covered examples include:
-
-* Authentication checks
-* Basic transcription
-* Advanced transcription options
-* Context injection
-* Command mode
-* Live streaming
-* Partial callbacks
-* Custom dictionaries
-* Replacements
-* Snippets
-* Cleanup testing
-* Language testing
-* Runtime overrides
-* Configuration management
-
-For most users, reading `wisprflow_example.py` is the fastest way to learn the SDK.
 
 ---
 
 ## Configuration
 
-The SDK supports:
-
-* Custom vocabulary
-* Replacements
-* Snippets
-* Language preferences
-* Cleanup levels
-* Style preferences
-* Signature settings
-
-Configuration is stored in:
-
-```text
-wispr_config.json
-```
-
-and can be managed programmatically:
+Persistent config is stored in `wispr_config.json` and managed via `client.config`:
 
 ```python
+# Custom vocabulary
 client.config.add_word("OpenAI")
+client.config.add_word("Dube", starred=True)
+
+# Replacements (applied after every transcription)
 client.config.add_replacement("dont", "don't")
+
+# Snippets (spoken phrase → short form)
+client.config.add_snippet("as soon as possible", "ASAP")
+
+# Style defaults per context
+client.config.set_style("work", "FORMAL")
+client.config.set_cleanup("MEDIUM")
+
 client.config.save()
+```
+
+Config path can be overridden:
+```python
+client = WisprClient(config_path="/path/to/config.json")
+# or set env var: WISPRFLOW_TEST_CFG=/path/to/config.json
 ```
 
 ---
 
-## Technical Documentation
+## Project Structure
 
-For contributors and anyone interested in the internals, see:
-
-```text
-TECHNICAL_DETAILS.md
+```
+wisprflow_sdk/
+├── __init__.py        ← public exports
+├── _core.py           ← entire SDK implementation
+└── _installer.py      ← wisprflow-patch entry point
 ```
 
-This document explains:
+The implementation is intentionally self-contained in `_core.py`. No local servers, browser automation, or multi-module dependency chains.
 
-* Authentication flow
-* Runtime configuration discovery
-* Patch implementation
-* gRPC protocol structure
-* Audio processing pipeline
-* Context injection
-* Live streaming architecture
-* Configuration management
-* Security considerations
+---
 
-It serves as a complete technical reference for the project.
+## Demo File
+
+`wisprflow_example.py` in the repository covers every public feature with annotated code: all `transcribe()` parameters, every `TranscriptResult` field, command mode, live streaming, config management, test matrices, and per-call overrides. Start there.
 
 ---
 
 ## Security
 
-Never commit:
-
-```text
-session.json
-wispr_runtime.json
-wispr_config.json
-```
-
-These files may contain:
-
-* Authentication tokens
-* API keys
-* Account information
-* Personal preferences
-* Custom vocabulary
-* Custom replacements
-
-Recommended `.gitignore`:
 
 ```gitignore
 session.json
 wispr_runtime.json
 wispr_config.json
-*.wav
 ```
+
+These files may contain authentication tokens, API keys, and personal vocabulary.
 
 ---
 
 ## Limitations
 
-This SDK depends on implementation details extracted from the Wispr Flow desktop application.
+* Patch script is Windows-only
+* Depends on implementation details from the Wispr desktop client — future Wispr updates may change authentication storage, runtime config format, gRPC message structure, or API endpoints
+* The `session.json` key name is Supabase project-specific and may change if Wispr rotates their backend
 
-Future Wispr updates may change:
+---
 
-* Authentication storage
-* Runtime configuration
-* API endpoints
-* gRPC message formats
-* Backend infrastructure
+## Technical Documentation
 
-As a result, future Wispr releases may require corresponding SDK updates.
+See `TECHNICAL_DETAILS.md` for the full internals: authentication flow, runtime config discovery, patch implementation, gRPC protocol, audio pipeline, and security considerations.
 
 ---
 
 ## Disclaimer
 
-This is an unofficial community project and is not affiliated with, endorsed by, or supported by Wispr Flow.
-
-This project was created for educational and interoperability purposes. Use at your own risk.
+Unofficial community project. Not affiliated with, endorsed by, or supported by Wispr Flow. Created for educational and interoperability purposes.
 
 All trademarks and product names belong to their respective owners.
 
