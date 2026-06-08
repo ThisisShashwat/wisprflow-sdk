@@ -22,7 +22,10 @@ wisprflow = "wisprflow_sdk._core:main"
 wisprflow-patch = "wisprflow_sdk._installer:run_patch"
 
 [project.urls]
+Homepage = "https://github.com/ThisisShashwat/wisprflow-sdk"
 Repository = "https://github.com/ThisisShashwat/wisprflow-sdk"
+PyPI = "https://pypi.org/project/wisprflow-sdk/"
+Issues = "https://github.com/ThisisShashwat/wisprflow-sdk/issues"
 
 [build-system]
 requires = ["uv_build>=0.7.19,<0.8.0"]
