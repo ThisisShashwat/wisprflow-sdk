@@ -253,7 +253,7 @@ print(sess.result.final)
 The repository includes:
 
 ```text
-wispr_demo.py
+wisprflow_example.py
 ```
 
 which demonstrates virtually every public feature of the SDK.
@@ -275,7 +275,7 @@ Covered examples include:
 * Runtime overrides
 * Configuration management
 
-For most users, reading `wispr_demo.py` is the fastest way to learn the SDK.
+For most users, reading `wisprflow_example.py` is the fastest way to learn the SDK.
 
 ---
 
