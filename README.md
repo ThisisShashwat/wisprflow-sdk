@@ -6,6 +6,8 @@ Reverse-engineers the Wispr Flow desktop client and exposes its transcription an
 
 [![PyPI version](https://badge.fury.io/py/wisprflow-sdk.svg)](https://pypi.org/project/wisprflow-sdk/)
 
+![Demo](demo/demo.gif)
+
 ## Table of Contents
 
 - [Features](#features)
