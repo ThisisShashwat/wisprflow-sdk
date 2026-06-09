@@ -60,8 +60,7 @@ npx --yes asar extract $asarPath $extractDir
 $runtimeJsonJs = $runtimeJson.Replace('\', '/')
 
 $pattern     = '=this.getDesiredGrpcModelInfo()'
-$injection   = '=this.getDesiredGrpcModelInfo();try{require("fs").writeFileSync("' + $runtimeJsonJs + '",JSON.stringify({modelId:i,environment:s,url:a,apiKey:Ct.Fo}))}catch(_e){}'
-
+$injection   = '=this.getDesiredGrpcModelInfo();try{require("fs").writeFileSync("' + $runtimeJsonJs + '",JSON.stringify({modelId:i,environment:a,url:o,apiKey:Ct.Fo}))}catch(_e){}'
 $files   = Get-ChildItem -Path $extractDir -Recurse -Include "*.js"
 $patched = $false
 
