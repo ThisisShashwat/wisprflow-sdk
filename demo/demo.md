@@ -2,6 +2,12 @@
 
 This page provides a visual walkthrough of the SDK setup and usage.
 
+
+> [!IMPORTANT]
+> You must have Wispr Flow installed and logged in on your system to make it work. Even a free account will work, but that is not necessary. So go and grab the installation from wisprflow.ai's website 
+>
+> This script is literally useless without Wisprflow installed.
+
 ## Demo
 
 The animated demo below shows the SDK running:
